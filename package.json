@@ -1,0 +1,27 @@
+{
+  "name": "npm_trend",
+  "version": "0.0.0",
+  "description": "Get trend data of npm usage",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:crabmc/npm-trend.git"
+  },
+  "author": "crabmc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/crabmc/npm-trend/issues"
+  },
+  "devDependencies": {
+  "mocha": "^1.20.0",
+  "chai": "^1.9.1",
+  "debug": "^1.0.3"
+  },
+  "dependencies": {
+    "minimist": "0.2.0"
+  },
+  "homepage": "https://github.com/crabmc/npm-trend"
+}
