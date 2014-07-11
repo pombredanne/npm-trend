@@ -1,4 +1,11 @@
 var util = require("lib/util.js");
+var os = require("os");
+
+// Cannot support win32
+if(os.platform() == "win32") {
+  console.error("Win32 is not supported");
+  process.exit(0);
+}
 
 (function parseArgs() {
   var args = require("minimist")(process.argv.slice(2), {
