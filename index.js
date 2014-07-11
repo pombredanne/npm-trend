@@ -1,3 +1,5 @@
+var util = require("lib/util.js");
+
 (function parseArgs() {
   var args = require("minimist")(process.argv.slice(2), {
     boolean: true
@@ -9,47 +11,33 @@
   }
 })();
 
-var childp = require("child_process");
 var debug = require("debug")("[main]");
+var crawler = require("lib/crawler");
 
-// Relaunch frequency check
-var duringLimit = 60 * 1000;
-var relaunchQueue = [];
-function relaunchTooFrequently() {
-  relaunchQueue.push(Date.now());
-  if(relaunchQueue.length > 3) {
-    relaunchQueue = relaunchQueue.slice(1);
-    return relaunchQueue[relaunchQueue.length - 1] - relaunchQueue[0] < duringLimit;
-  }
-
-  return false;
+try {
+  crawler.launch();
+} catch (e) {
+  console.error("Launch crawler fails: " + e);
+  crawler.kill();
+  process.exit(0);
 }
-
-// Launch crawler
-var crawler = null;
-(function launchCrawler() {
-  debug("Launch crawler ...");
-  crawler = childp.fork("./bin/crawler/main.js");
-  debug("Launch crawler OK. PID: %d", crawler.pid);
-
-  // Relaunch crawler if unexpected exit
-  crawler.on("exit", function() {
-    debug("Unexpected crawler exit, relaunch");
-    if (relaunchTooFrequently()) {
-      console.warn("Warn: crawler relaunch too frequently, stop relaunching");
-      setInterval(function() {
-        console.warn("Warn: crawler relaunch too frequently, stop relaunching");
-      }, 10 * 1000);
-    } else {
-      launchCrawler();
-    }
-  });
-})();
 
 // Kill crawler if main process exit
 (function setExitEvent() {
-  process.on("exit", function() {
-    debug("Kill crawler. PID: %d", crawler.pid);
+  var clean = function() {
     crawler.kill();
+    process.exit(0);
+  }
+
+  util.exitSignalSet.forEach(function(sig) {
+    process.on(sig, function() {
+      debug("Get %s", sig);
+      clean();
+    });
+  });
+
+  process.on("uncaughtException", function(err) {
+    console.error("UncaughtException: " + err);
+    clean();
   });
 })();
