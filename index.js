@@ -2,7 +2,7 @@ var util = require("lib/util.js");
 var os = require("os");
 
 // Cannot support win32
-if(os.platform() == "win32") {
+if (os.platform() == "win32") {
   console.error("Win32 is not supported");
   process.exit(0);
 }
@@ -19,7 +19,7 @@ if(os.platform() == "win32") {
 })();
 
 var debug = require("debug")("[main]");
-var crawler = require("lib/crawler");
+var crawler = require("lib/crawler")();
 
 try {
   crawler.launch();
