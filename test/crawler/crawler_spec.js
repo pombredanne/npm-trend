@@ -1,9 +1,11 @@
-var expect = require("chai").expect;
+var chai = require("chai");
 var sinon = require("sinon");
 var path = require("path");
 var os = require("os");
 var fs = require("fs");
 var get_crawler = require("../../lib/crawler");
+var expect = chai.expect;
+chai.config.includeStack = true;
 
 describe("Crawler object", function() {
   var crawler;
@@ -14,13 +16,20 @@ describe("Crawler object", function() {
     crawler = get_crawler();
   });
 
+  after(function() {
+    if (fs.existsSync(fake_testlog)) {
+      fs.unlinkSync(fake_testlog);
+    }
+  });
+
   it("Property check", function() {
     [
       "_relaunchTooFrequently",
       "_repeatWarn",
       "launch",
       "kill",
-      "config"
+      "config",
+      "_test"
     ].forEach(function(prty) {
       expect(crawler).to.have.ownProperty(prty);
     });
@@ -44,7 +53,7 @@ describe("Crawler object", function() {
       throw (Error);
     });
 
-    it("could launch crawler", function(done) {
+    it("could launch crawler, no exception if kill after crawler exit", function(done) {
       crawler.config({
         args: ["--shortrun"]
       });
@@ -56,8 +65,86 @@ describe("Crawler object", function() {
 
       setTimeout(function() {
         expect(fs.readFileSync(fake_testlog, "utf-8")).to.eql("Fake crawler start\n" + "Fake crawler finish\n");
+        expect(function() {
+          crawler.kill();
+        }).to.not.
+        throw ();
         done();
-      }, 1000);
+      }, 500);
+    });
+
+    it("could kill running crawler", function(done) {
+      crawler.config({
+        args: ["--longrun"]
+      });
+      crawler.launch();
+      setTimeout(function() {
+        crawler.kill();
+        setTimeout(function() {
+          expect(fs.readFileSync(fake_testlog, "utf-8")).to.eql("Fake crawler start\n" + "Fake crawler killed\n");
+          done();
+        }, 500);
+      }, 500);
+    });
+
+    it("will warn if there is already crawler instance", function(done) {
+      require("child_process").fork(fake_cl, ["--longrun"]);
+
+      sinon.spy(crawler, "_repeatWarn");
+      crawler.config({
+        args: ["--multiinst"]
+      });
+      crawler.launch();
+      setTimeout(function() {
+        expect(crawler._repeatWarn.withArgs("there is already crawler instance").calledOnce).to.be.true;
+        crawler._repeatWarn.restore();
+        done();
+      }, 500);
+    });
+
+    it("relaunch crawler after a configurable time", function(done) {
+      sinon.spy(crawler, "launch");
+      crawler.config({
+        args: ["--shortrun"],
+        launchNextTimeAfter: 1 / 1000
+      });
+      crawler.launch();
+      setTimeout(function() {
+        expect(crawler.launch.callCount).to.be.above(1);
+        crawler.launch.restore();
+        crawler.kill();
+        done();
+      }, 500);
+    });
+
+    it("warn if crawler relaunch too frequently", function(done) {
+      sinon.spy(crawler, "launch");
+      sinon.spy(crawler, "_relaunchTooFrequently");
+      sinon.spy(crawler, "_repeatWarn");
+      crawler.config({
+        args: ["--longrun"],
+        duringLimit: 60,
+        relaunchQLen: 2
+      });
+      crawler.launch();
+      setTimeout(function() {
+        process.kill(crawler._test.crawler_pid(), "SIGINT");
+        setTimeout(function() {
+          process.kill(crawler._test.crawler_pid(), "SIGINT");
+          setTimeout(function() {
+            process.kill(crawler._test.crawler_pid(), "SIGINT");
+            setTimeout(function() {
+              expect(crawler.launch.calledThrice).to.be.true;
+              expect(crawler._relaunchTooFrequently.calledThrice).to.be.true;
+              expect(crawler._repeatWarn.withArgs("crawler relaunch too frequently, stop relaunching").calledOnce).to.be.true;
+              crawler.launch.restore();
+              crawler._relaunchTooFrequently.restore();
+              crawler._repeatWarn.restore();
+              done();
+            }, 500);
+          }, 500);
+        }, 500);
+      }, 500);
     });
   });
 });
