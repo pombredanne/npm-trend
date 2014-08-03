@@ -45,6 +45,7 @@ try {
 
   process.on("uncaughtException", function(err) {
     console.error("UncaughtException: " + err);
+    console.error(err.stack);
     clean();
   });
 })();

@@ -16,6 +16,7 @@ describe("Crawler object", function() {
     crawler = get_crawler();
   });
 
+  // TODO: this tmp file is not deleted sometimes
   after(function() {
     if (fs.existsSync(fake_testlog)) {
       fs.unlinkSync(fake_testlog);
