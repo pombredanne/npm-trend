@@ -60,11 +60,11 @@ describe("Worker to get page", function() {
       throw (Error, /callback function for returned page missed/);
     });
 
-    it("next must be function if given", function() {
+    it("range must be array if given", function() {
       expect(function() {
-        Worker.start('http://test', function() {}, null, null, "")
+        Worker.start('http://test', function() {}, "")
       }).to.
-      throw (Error, /"next" param must be a function/);
+      throw (Error, /"range" param must be array/);
     });
   });
 
@@ -115,8 +115,8 @@ describe("Worker to get page", function() {
       var next = function(cur) {
         return cur + 1;
       };
-      Worker.start('http://localhost:56789/test/@|replace|@', page_cb, 1, 3, next);
-      Worker.start('https://localhost:56790/test@|replace|@', page_cb, 1, 3, next);
+      Worker.start('http://localhost:56789/test/@|replace|@', page_cb, [1, 2, 3]);
+      Worker.start('https://localhost:56790/test@|replace|@', page_cb, [1, 2, 3]);
     });
   });
 });
