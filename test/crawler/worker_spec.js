@@ -101,22 +101,24 @@ describe("Worker to get page", function() {
   describe("multiple pages", function() {
     it("error and no error page coexist", function() {
       var page_cb = function(err, page, url) {
-        if (url.indexOf("test1") > -1) {
+        if (url.indexOf("test/1") > -1) {
           expect(err).to.be.null;
           expect(page).to.eql("test1");
-        } else if (url.indexOf("test2") > -1) {
+        } else if (url.indexOf("test/2") > -1) {
           expect(page).to.be.null;
-          expect(err.res.statusCode).to.eql(304);
-        } else if (url.indexOf("test3") > -1) {
+          expect(err.response.statusCode).to.eql(304);
+        } else if (url.indexOf("test/3") > -1) {
           expect(err).to.be.null;
           expect(page).to.eql("test3");
+        } else {
+          throw new Error("Unexpected code touched");
         }
       };
       var next = function(cur) {
         return cur + 1;
       };
       Worker.start('http://localhost:56789/test/@|replace|@', page_cb, [1, 2, 3]);
-      Worker.start('https://localhost:56790/test@|replace|@', page_cb, [1, 2, 3]);
+      Worker.start('https://localhost:56790/test/@|replace|@', page_cb, [1, 2, 3]);
     });
   });
 });

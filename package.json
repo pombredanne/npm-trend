@@ -22,6 +22,7 @@
   "sinon": "1.10.3"
   },
   "dependencies": {
+    "r...e": "0.2.0",
     "async": "0.2.5",
     "cheerio": "0.17.0",
     "minimist": "0.2.0",
