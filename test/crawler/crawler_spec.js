@@ -16,10 +16,13 @@ describe("Crawler object", function() {
     crawler = get_crawler();
   });
 
-  // TODO: this tmp file is not deleted sometimes
-  after(function() {
+  afterEach(function() {
     if (fs.existsSync(fake_testlog)) {
-      fs.unlinkSync(fake_testlog);
+      fs.unlink(fake_testlog, function(e) {
+        if (e != null) {
+          console.error(e);
+        }
+      });
     }
   });
 
