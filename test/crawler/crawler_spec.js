@@ -16,16 +16,6 @@ describe("Crawler object", function() {
     crawler = get_crawler();
   });
 
-  afterEach(function() {
-    if (fs.existsSync(fake_testlog)) {
-      fs.unlink(fake_testlog, function(e) {
-        if (e != null) {
-          console.error(e);
-        }
-      });
-    }
-  });
-
   it("Property check", function() {
     [
       "_relaunchTooFrequently",

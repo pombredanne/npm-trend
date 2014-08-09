@@ -4,7 +4,7 @@
   "description": "Get trend data of npm usage",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -R spec --recursive -t 10000"
+    "test": "mocha -R spec --recursive -t 10000; rm -f npm-trend.fakecl.log"
   },
   "repository": {
     "type": "git",
