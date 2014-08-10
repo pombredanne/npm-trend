@@ -1,4 +1,3 @@
-var util = require("lib/util.js");
 var os = require("os");
 
 // Cannot support win32
@@ -7,6 +6,8 @@ if (os.platform() == "win32") {
   process.exit(0);
 }
 
+// Attention: Make sure any other require() action is performed after this parseArgs()
+// since some module depends on the process environment
 (function parseArgs() {
   var args = require("minimist")(process.argv.slice(2), {
     boolean: true
@@ -20,11 +21,13 @@ if (os.platform() == "win32") {
 
 var debug = require("debug")("[main]");
 var crawler = require("lib/crawler")();
+var util = require("lib/util");
 
 try {
   crawler.launch();
 } catch (e) {
-  console.error("Launch crawler fails: " + e);
+  console.error("Launch crawler fails: " + e.message);
+  console.error(e.stack);
   crawler.kill();
   process.exit(0);
 }
