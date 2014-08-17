@@ -1,0 +1,13 @@
+{
+	"_comment": "minutes for relaunch crawler next time",
+	"relaunchAfter": 5,
+
+	"_comment": "limit number of socket file description to use, OS also has a limit on it",
+	"maxSockets": 500,
+
+	"_comment": "seconds for timeout of http get",
+	"httpGetTimeout": 100,
+
+	"_comment": "for globalAgent.maxSockets",
+	"maxReqOnSingleSocket": 300
+}
