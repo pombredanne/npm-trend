@@ -4,6 +4,7 @@
   "description": "Get trend data of npm usage",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js --debug",
     "test": "mocha -R spec --recursive -t 10000; rm -f npm-trend.fakecl.log"
   },
   "repository": {
@@ -22,6 +23,8 @@
   "sinon": "1.10.3"
   },
   "dependencies": {
+    "sprintf-js": "0.0.7",
+    "mongoose": "3.8.16",
     "needle": "0.7.8",
     "r...e": "0.2.0",
     "async": "0.2.5",

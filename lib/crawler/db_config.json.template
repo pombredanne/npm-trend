@@ -1,0 +1,18 @@
+{
+	"_comment": "This is a template config file. After fill params, rename this file to 'db_config.json' and never check it into source",
+
+	"_comment": "mongodb address",
+	"address": "localhost:27017",
+
+	"_comment": "db name for npmtrend",
+	"npmtrendDB": "xxx",
+
+	"_comment": "need authentication or not, true/false. If false, follow-up username and passwd will be ignored",
+	"needAuth": true,
+
+	"_comment": "username if needing authentication. The user should have R/W authority on npmtrendDB",
+	"username": "xxx",
+
+	"_comment": "password if needing authentication",
+	"passwd": "xxx"
+}
