@@ -7,6 +7,8 @@ var db = require("../../lib/crawler/db");
 var exec = require('child_process').exec;
 var sprintf = require("sprintf-js").sprintf;
 var async = require("async");
+var Mongodb = require("mongodb").Db;
+var MongoServer = require("mongodb").Server;
 chai.config.includeStack = true;
 
 var errcb = function(err) {
@@ -31,9 +33,37 @@ describe("db", function() {
   var dbcmd_noauth = sprintf("mongod --port %s --dbpath %s --logpath %s", dbport, dbdir, dblog);
   var dbcmd_auth = dbcmd_auth + " --auth";
 
-  before(function() {
+  before(function(done) {
     fs.removeSync(dbdir);
     fs.mkdirSync(dbdir);
+
+    // prepare db test user
+    var mongod = exec(dbcmd_noauth);
+    var conn = null;
+    async.series([
+      sleep(),
+      function(adone) {
+        conn = new Mongodb("test", new MongoServer("localhost", parseInt(dbport)));
+        conn.open(function(err) {
+          expect(err).to.be.null;
+          conn.addUser("tusr", "123456", function(err) {
+            expect(err).to.be.null;
+            adone();
+          })
+        });
+      },
+      function(adone) {
+        conn.admin().addUser("rusr", "123456", function(err) {
+          expect(err).to.be.null;
+          conn.close();
+          adone();
+        });
+      }
+    ], function(err) {
+      mongod.kill();
+      errcb(err);
+      done();
+    });
   });
 
   after(function() {
@@ -43,10 +73,10 @@ describe("db", function() {
   beforeEach(function() {
     dbconfig = {
       "address": "localhost:" + dbport,
-      "npmtrendDB": "test",
+      "npmtrendDB": "",
       "needAuth": true,
-      "username": "root",
-      "passwd": "123456"
+      "username": "",
+      "passwd": ""
     };
 
     fs.removeSync(dblog);
@@ -54,6 +84,9 @@ describe("db", function() {
 
   describe("connection", function() {
     it("give right connection string", function() {
+      dbconfig.npmtrendDB = "test";
+      dbconfig.username = "root";
+      dbconfig.passwd = "123456";
       dbconfig.authDB = dbconfig.npmtrendDB;
       expect(db._getConnStr(dbconfig)).to.equal("mongodb://root:123456@localhost:" + dbport + "/test");
       dbconfig.needAuth = false;
@@ -66,6 +99,7 @@ describe("db", function() {
 
     it("connect without auth", function(done) {
       var mongod = exec(dbcmd_noauth);
+      dbconfig.npmtrendDB = "test";
       dbconfig.needAuth = false;
       async.series([
         sleep(),
@@ -83,6 +117,78 @@ describe("db", function() {
         function(adone) {
           expect(db.ready()).to.be.false;
           expect(/connection accepted from/.test(fs.readFileSync(dblog))).to.be.true;
+          adone();
+        }
+      ], function(err) {
+        if (err != null && mongod != null) {
+          mongod.kill();
+        }
+        errcb(err);
+        done();
+      });
+    });
+
+    it("connect with auth, not admin user", function(done) {
+      var mongod = exec(dbcmd_noauth);
+      dbconfig.npmtrendDB = "test";
+      dbconfig.username = "tusr";
+      dbconfig.passwd = "123456";
+      async.series([
+        sleep(),
+        function(adone) {
+          db.connect(dbconfig);
+          adone();
+        },
+        sleep(),
+        function(adone) {
+          expect(db.ready()).to.be.true;
+          mongod.kill();
+          adone();
+        },
+        sleep(),
+        function(adone) {
+          var log = fs.readFileSync(dblog);
+          expect(db.ready()).to.be.false;
+          expect(/connection accepted from/.test(log)).to.be.true;
+          expect(/authenticate db: test.*user: "tusr"/.test(log)).to.be.true;
+          expect(/auth: couldn't find user tusr@test/.test(log)).to.be.false;
+          adone();
+        }
+      ], function(err) {
+        if (err != null && mongod != null) {
+          mongod.kill();
+        }
+        errcb(err);
+        done();
+      });
+    });
+
+    it("connect with auth, could retry with admin user", function(done) {
+      var mongod = exec(dbcmd_noauth);
+      dbconfig.npmtrendDB = "test";
+      dbconfig.username = "rusr";
+      dbconfig.passwd = "123456";
+      async.series([
+        sleep(),
+        function(adone) {
+          db.connect(dbconfig);
+          adone();
+        },
+        sleep(),
+        function(adone) {
+          expect(db.ready()).to.be.true;
+          mongod.kill();
+          adone();
+        },
+        sleep(),
+        function(adone) {
+          var log = fs.readFileSync(dblog);
+          expect(db.ready()).to.be.false;
+          expect(/connection accepted from/.test(log)).to.be.true;
+          expect(/authenticate db: test.*user: "rusr"/.test(log)).to.be.true;
+          expect(/authenticate db: admin.*user: "rusr"/.test(log)).to.be.true;
+          expect(/auth: couldn't find user rusr@test/.test(log)).to.be.true;
+          expect(/auth: couldn't find user rusr@admin/.test(log)).to.be.false;
           adone();
         }
       ], function(err) {
