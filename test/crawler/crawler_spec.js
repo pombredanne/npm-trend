@@ -72,7 +72,6 @@ describe("Crawler object", function() {
       throw ();
 
       async.series([
-
         sleep(),
         function(adone) {
           expect(fs.readFileSync(fake_testlog, "utf-8")).to.eql("Fake crawler start\n" + "Fake crawler finish\n");
@@ -95,7 +94,6 @@ describe("Crawler object", function() {
 
       crawler.launch();
       async.series([
-
         sleep(),
         function(adone) {
           crawler.kill();
@@ -154,7 +152,6 @@ describe("Crawler object", function() {
       crawler.launch();
 
       async.series([
-
         sleep(),
         function(adone) {
           process.kill(crawler._test.crawler_pid(), "SIGINT");
