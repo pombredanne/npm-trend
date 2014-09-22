@@ -31,7 +31,7 @@ describe("db", function() {
   var dblog = path.join(dbdir, "/" + Math.random().toString());
   var dbconfig = null;
   var dbcmd_noauth = sprintf("mongod --port %s --dbpath %s --logpath %s", dbport, dbdir, dblog);
-  var dbcmd_auth = dbcmd_auth + " --auth";
+  var dbcmd_auth = dbcmd_noauth + " --auth";
 
   before(function(done) {
     fs.removeSync(dbdir);
@@ -129,7 +129,7 @@ describe("db", function() {
     });
 
     it("connect with auth, not admin user", function(done) {
-      var mongod = exec(dbcmd_noauth);
+      var mongod = exec(dbcmd_auth);
       dbconfig.npmtrendDB = "test";
       dbconfig.username = "tusr";
       dbconfig.passwd = "123456";
@@ -164,7 +164,7 @@ describe("db", function() {
     });
 
     it("connect with auth, could retry with admin user", function(done) {
-      var mongod = exec(dbcmd_noauth);
+      var mongod = exec(dbcmd_auth);
       dbconfig.npmtrendDB = "test";
       dbconfig.username = "rusr";
       dbconfig.passwd = "123456";

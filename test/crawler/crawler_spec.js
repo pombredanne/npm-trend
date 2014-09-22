@@ -1,3 +1,5 @@
+//TODO: Clear useless output to console, like stderr output
+//TODO: Need code coverage test
 var chai = require("chai");
 var sinon = require("sinon");
 var path = require("path");
