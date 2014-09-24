@@ -9,20 +9,11 @@ var sprintf = require("sprintf-js").sprintf;
 var async = require("async");
 var Mongodb = require("mongodb").Db;
 var MongoServer = require("mongodb").Server;
+var util = require("../util");
 chai.config.includeStack = true;
 
-var errcb = function(err) {
-  if (err != null) {
-    console.error(err.message);
-    console.error(err.stack);
-  }
-};
-
-var sleep = function(time) {
-  return function(done) {
-    setTimeout(done, time == null ? 500 : time);
-  };
-};
+var errcb = util.errcb;
+var sleep = util.sleep;
 
 //TODO: not enough test
 describe("db", function() {

@@ -1,4 +1,3 @@
-//TODO: Clear useless output to console, like stderr output
 //TODO: Need code coverage test
 var chai = require("chai");
 var sinon = require("sinon");
@@ -8,20 +7,11 @@ var fs = require("fs");
 var async = require("async");
 var get_crawler = require("../../lib/crawler");
 var expect = chai.expect;
+var util = require("../util");
 chai.config.includeStack = true;
 
-var errcb = function(err) {
-  if (err != null) {
-    console.error(err.message);
-    console.error(err.stack);
-  }
-};
-
-var sleep = function(time) {
-  return function(done) {
-    setTimeout(done, time == null ? 500 : time);
-  };
-};
+var errcb = util.errcb;
+var sleep = util.sleep;
 
 describe("Crawler object", function() {
   var crawler;
