@@ -15,7 +15,7 @@ chai.config.includeStack = true;
 var errcb = util.errcb;
 var sleep = util.sleep;
 
-//TODO: not enough test
+//TODO: Test is not stable enough since mocha could not ensure order of async case.
 describe("db", function() {
   var dbport = (50000 + parseInt(10000 * Math.random())).toString();
   var dbdir = path.join(os.tmpdir(), "/" + dbport.toString());
@@ -53,6 +53,7 @@ describe("db", function() {
     ], function(err) {
       mongod.kill();
       errcb(err);
+      expect(err).to.be.null;
       done();
     });
   });
@@ -115,6 +116,7 @@ describe("db", function() {
           mongod.kill();
         }
         errcb(err);
+        expect(err).to.be.null;
         done();
       });
     });
@@ -150,6 +152,7 @@ describe("db", function() {
           mongod.kill();
         }
         errcb(err);
+        expect(err).to.be.null;
         done();
       });
     });
@@ -187,6 +190,132 @@ describe("db", function() {
           mongod.kill();
         }
         errcb(err);
+        expect(err).to.be.null;
+        done();
+      });
+    });
+  });
+
+  describe("schema", function() {
+    beforeEach(function() {
+      dbconfig.npmtrendDB = "test";
+      dbconfig.username = "tusr";
+      dbconfig.passwd = "123456";
+    });
+
+    it("schema option must be strict", function() {
+      expect(db._schemaOption.strict).to.be.true;
+    });
+
+    it("verify models", function() {
+      expect(db).to.have.property("TotalPkg");
+      expect(db).to.have.property("TotalDayDld");
+      expect(db).to.have.property("TotalWeekDld");
+      expect(db).to.have.property("TotalMonthDld");
+      expect(db).to.have.property("Modules");
+    });
+
+    ["TotalPkg", "TotalDayDld", "TotalWeekDld", "TotalMonthDld"].forEach(function(model) {
+      it(model, function(done) {
+        var mongod = exec(dbcmd_auth);
+        var doc = {
+          date: new Date(Date.now()),
+          num: 100
+        };
+
+        async.series([
+          sleep(),
+          function(adone) {
+            db.connect(dbconfig);
+            adone();
+          },
+          sleep(),
+          function(adone) {
+            db[model].create(doc, function(err) {
+              expect(err).to.be.null;
+              adone();
+            });
+          },
+          function(adone) {
+            db[model].find({
+              date: doc.date
+            }, function(err, docs) {
+              expect(err).to.be.null;
+              expect(docs[0].date).to.deep.equal(doc.date);
+              expect(docs[0].num).to.equal(doc.num);
+              adone();
+            });
+          }
+        ], function(err) {
+          mongod.kill();
+          errcb(err);
+          expect(err).to.be.null;
+          done();
+        });
+      });
+    });
+
+    it("Models, including uniqueness check", function(done) {
+      var mongod = exec(dbcmd_auth);
+      var doc = {
+        name: "npm",
+        description: "node modules",
+        keyword: ["node", "package distribution"],
+        weekDld: [{
+          date: new Date(Date.now() - 5000),
+          num: 100
+        }, {
+          date: new Date(Date.now()),
+          num: 500
+        }],
+        monthDld: [{
+          date: new Date(Date.now() - 50000),
+          num: 1000
+        }]
+      };
+
+      async.series([
+        sleep(),
+        function(adone) {
+          db.connect(dbconfig);
+          adone();
+        },
+        sleep(),
+        function(adone) {
+          db.Modules.create(doc, function(err) {
+            expect(err).to.be.null;
+            adone();
+          });
+        },
+        function(adone) {
+          db.Modules.find({
+            name: doc.name
+          }, function(err, docs) {
+            expect(err).to.be.null;
+
+            var find = docs[0];
+            expect(find.name).to.equal(doc.name);
+            expect(find.description).to.equal(doc.description);
+            expect(find.keyword).to.have.same.members(doc.keyword);
+            ["weekDld", "monthDld"].forEach(function(field) {
+              find[field].forEach(function(e, idx) {
+                expect(e.num).to.equal(doc[field][idx].num);
+                expect(e.date).to.deep.equal(doc[field][idx].date);
+              });
+            });
+            adone();
+          });
+        },
+        function(adone) {
+          db.Modules.create(doc, function(err) {
+            expect(err.err).to.match(/duplicate key/);
+            adone();
+          });
+        }
+      ], function(err) {
+        mongod.kill();
+        errcb(err);
+        expect(err).to.be.null;
         done();
       });
     });

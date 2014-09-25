@@ -75,6 +75,7 @@ describe("Crawler object", function() {
         }
       ], function(err) {
         errcb(err);
+        expect(err).to.be.null;
         done();
       });
     });
@@ -98,6 +99,7 @@ describe("Crawler object", function() {
         }
       ], function(err) {
         errcb(err);
+        expect(err).to.be.null;
         done();
       });
     });
@@ -171,6 +173,7 @@ describe("Crawler object", function() {
         }
       ], function(err) {
         errcb(err);
+        expect(err).to.be.null;
         done();
       });
     });
