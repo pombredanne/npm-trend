@@ -9,11 +9,11 @@ var sprintf = require("sprintf-js").sprintf;
 var async = require("async");
 var Mongodb = require("mongodb").Db;
 var MongoServer = require("mongodb").Server;
-var util = require("../util");
+var test_util = require("../test_util");
 chai.config.includeStack = true;
 
-var errcb = util.errcb;
-var sleep = util.sleep;
+var errcb = test_util.errcb;
+var sleep = test_util.sleep;
 
 //TODO: Test is not stable enough since mocha could not ensure order of async case.
 describe("db", function() {

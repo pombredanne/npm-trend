@@ -7,11 +7,11 @@ var fs = require("fs");
 var async = require("async");
 var get_crawler = require("../../lib/crawler");
 var expect = chai.expect;
-var util = require("../util");
+var test_util = require("../test_util");
 chai.config.includeStack = true;
 
-var errcb = util.errcb;
-var sleep = util.sleep;
+var errcb = test_util.errcb;
+var sleep = test_util.sleep;
 
 describe("Crawler object", function() {
   var crawler;
