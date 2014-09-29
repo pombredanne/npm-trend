@@ -216,7 +216,7 @@ describe("db", function() {
     });
 
     ["TotalPkg", "TotalDayDld", "TotalWeekDld", "TotalMonthDld"].forEach(function(model) {
-      it(model, function(done) {
+      it(model + ", including uniqueness check", function(done) {
         var mongod = exec(dbcmd_auth);
         var doc = {
           date: new Date(Date.now()),
@@ -243,6 +243,12 @@ describe("db", function() {
               expect(err).to.be.null;
               expect(docs[0].date).to.deep.equal(doc.date);
               expect(docs[0].num).to.equal(doc.num);
+              adone();
+            });
+          },
+          function(adone) {
+            db[model].create(doc, function(err) {
+              expect(err.err).to.match(/duplicate key/);
               adone();
             });
           }
@@ -274,6 +280,7 @@ describe("db", function() {
         }]
       };
 
+      // TODO: check uniqeness of weekDld and monthDld
       async.series([
         sleep(),
         function(adone) {
