@@ -248,7 +248,7 @@ describe("db", function() {
           },
           function(adone) {
             db[model].create(doc, function(err) {
-              expect(err.err).to.match(/duplicate key/);
+              expect(err.err).to.match(/duplicate key.*date/);
               adone();
             });
           }
@@ -280,7 +280,6 @@ describe("db", function() {
         }]
       };
 
-      // TODO: check uniqeness of weekDld and monthDld
       async.series([
         sleep(),
         function(adone) {
@@ -315,7 +314,7 @@ describe("db", function() {
         },
         function(adone) {
           db.Modules.create(doc, function(err) {
-            expect(err.err).to.match(/duplicate key/);
+            expect(err.err).to.match(/duplicate key.*name/);
             adone();
           });
         }
