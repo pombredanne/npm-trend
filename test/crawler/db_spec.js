@@ -15,7 +15,7 @@ chai.config.includeStack = true;
 var errcb = test_util.errcb;
 var sleep = test_util.sleep;
 
-//TODO: Test is not stable enough since mocha could not ensure order of async case.
+// TODO: write attentions for testing at README. Like manual clean work when test fails.
 describe("db", function() {
   var dbport = (50000 + parseInt(10000 * Math.random())).toString();
   var dbdir = path.join(os.tmpdir(), "/" + dbport.toString());
@@ -99,17 +99,27 @@ describe("db", function() {
           db.connect(dbconfig);
           adone();
         },
-        sleep(),
         function(adone) {
-          expect(db.ready()).to.be.true;
-          mongod.kill();
-          adone();
+          async.until(function() {
+            return db.ready();
+          }, function(cb) {
+            setTimeout(cb, 100);
+          }, function() {
+            mongod.kill();
+            adone();
+          });
         },
-        sleep(),
         function(adone) {
-          expect(db.ready()).to.be.false;
-          expect(/connection accepted from/.test(fs.readFileSync(dblog))).to.be.true;
-          adone();
+          async.until(function() {
+            return !db.ready();
+          }, function(cb) {
+            // Attention, do not set the timeout value too small. At a heavy load machine, timeout of small value may always make other event
+            // postponed indefinitely. Thus unable to wait for the expected result to come since the necessary calculation is starved.
+            setTimeout(cb, 300);
+          }, function() {
+            expect(/connection accepted from/.test(fs.readFileSync(dblog))).to.be.true;
+            adone();
+          });
         }
       ], function(err) {
         if (err != null && mongod != null) {
@@ -132,20 +142,28 @@ describe("db", function() {
           db.connect(dbconfig);
           adone();
         },
-        sleep(),
         function(adone) {
-          expect(db.ready()).to.be.true;
-          mongod.kill();
-          adone();
+          async.until(function() {
+            return db.ready();
+          }, function(cb) {
+            setTimeout(cb, 100);
+          }, function() {
+            mongod.kill();
+            adone();
+          });
         },
-        sleep(),
         function(adone) {
-          var log = fs.readFileSync(dblog);
-          expect(db.ready()).to.be.false;
-          expect(/connection accepted from/.test(log)).to.be.true;
-          expect(/authenticate db: test.*user: "tusr"/.test(log)).to.be.true;
-          expect(/auth: couldn't find user tusr@test/.test(log)).to.be.false;
-          adone();
+          async.until(function() {
+            return !db.ready();
+          }, function(cb) {
+            setTimeout(cb, 300);
+          }, function() {
+            var log = fs.readFileSync(dblog);
+            expect(/connection accepted from/.test(log)).to.be.true;
+            expect(/authenticate db: test.*user: "tusr"/.test(log)).to.be.true;
+            expect(/auth: couldn't find user tusr@test/.test(log)).to.be.false;
+            adone();
+          });
         }
       ], function(err) {
         if (err != null && mongod != null) {
@@ -168,22 +186,30 @@ describe("db", function() {
           db.connect(dbconfig);
           adone();
         },
-        sleep(),
         function(adone) {
-          expect(db.ready()).to.be.true;
-          mongod.kill();
-          adone();
+          async.until(function() {
+            return db.ready();
+          }, function(cb) {
+            setTimeout(cb, 100);
+          }, function() {
+            mongod.kill();
+            adone();
+          });
         },
-        sleep(),
         function(adone) {
-          var log = fs.readFileSync(dblog);
-          expect(db.ready()).to.be.false;
-          expect(/connection accepted from/.test(log)).to.be.true;
-          expect(/authenticate db: test.*user: "rusr"/.test(log)).to.be.true;
-          expect(/authenticate db: admin.*user: "rusr"/.test(log)).to.be.true;
-          expect(/auth: couldn't find user rusr@test/.test(log)).to.be.true;
-          expect(/auth: couldn't find user rusr@admin/.test(log)).to.be.false;
-          adone();
+          async.until(function() {
+            return !db.ready();
+          }, function(cb) {
+            setTimeout(cb, 300);
+          }, function() {
+            var log = fs.readFileSync(dblog);
+            expect(/connection accepted from/.test(log)).to.be.true;
+            expect(/authenticate db: test.*user: "rusr"/.test(log)).to.be.true;
+            expect(/authenticate db: admin.*user: "rusr"/.test(log)).to.be.true;
+            expect(/auth: couldn't find user rusr@test/.test(log)).to.be.true;
+            expect(/auth: couldn't find user rusr@admin/.test(log)).to.be.false;
+            adone();
+          });
         }
       ], function(err) {
         if (err != null && mongod != null) {

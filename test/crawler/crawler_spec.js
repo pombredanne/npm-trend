@@ -64,14 +64,23 @@ describe("Crawler object", function() {
       throw ();
 
       async.series([
-        sleep(),
+
         function(adone) {
-          expect(fs.readFileSync(fake_testlog, "utf-8")).to.eql("Fake crawler start\n" + "Fake crawler finish\n");
-          expect(function() {
-            crawler.kill();
-          }).to.not.
-          throw ();
-          adone();
+          async.until(function() {
+            if (fs.existsSync(fake_testlog)) {
+              return fs.readFileSync(fake_testlog, "utf-8") == "Fake crawler start\n" + "Fake crawler finish\n";
+            } else {
+              return false;
+            }
+          }, function(cb) {
+            setTimeout(cb, 100);
+          }, function() {
+            expect(function() {
+              crawler.kill();
+            }).to.not.
+            throw ();
+            adone();
+          });
         }
       ], function(err) {
         errcb(err);
@@ -92,10 +101,18 @@ describe("Crawler object", function() {
           crawler.kill();
           adone();
         },
-        sleep(),
         function(adone) {
-          expect(fs.readFileSync(fake_testlog, "utf-8")).to.eql("Fake crawler start\n" + "Fake crawler killed\n");
-          adone();
+          async.until(function() {
+            if (fs.existsSync(fake_testlog)) {
+              return fs.readFileSync(fake_testlog, "utf-8") == "Fake crawler start\n" + "Fake crawler killed\n";
+            } else {
+              return false;
+            }
+          }, function(cb) {
+            setTimeout(cb, 100);
+          }, function() {
+            adone();
+          });
         }
       ], function(err) {
         errcb(err);
@@ -112,11 +129,14 @@ describe("Crawler object", function() {
         args: ["--multiinst"]
       });
       crawler.launch();
-      setTimeout(function() {
-        expect(crawler._repeatWarn.withArgs("there is already crawler instance").calledOnce).to.be.true;
+      async.until(function() {
+        return crawler._repeatWarn.withArgs("there is already crawler instance").calledOnce;
+      }, function(cb) {
+        setTimeout(cb, 100);
+      }, function() {
         crawler._repeatWarn.restore();
         done();
-      }, 500);
+      });
     });
 
     it("relaunch crawler after a configurable time", function(done) {
@@ -126,12 +146,15 @@ describe("Crawler object", function() {
         launchNextTimeAfter: 1 / 1000
       });
       crawler.launch();
-      setTimeout(function() {
-        expect(crawler.launch.callCount).to.be.above(1);
+      async.until(function() {
+        return crawler.launch.callCount > 1;
+      }, function(cb) {
+        setTimeout(cb, 100);
+      }, function() {
         crawler.launch.restore();
         crawler.kill();
         done();
-      }, 500);
+      });
     });
 
     it("warn if crawler relaunch too frequently", function(done) {
@@ -161,15 +184,17 @@ describe("Crawler object", function() {
           process.kill(crawler._test.crawler_pid(), "SIGINT");
           adone();
         },
-        sleep(),
         function(adone) {
-          expect(crawler.launch.calledThrice).to.be.true;
-          expect(crawler._relaunchTooFrequently.calledThrice).to.be.true;
-          expect(crawler._repeatWarn.withArgs("crawler relaunch too frequently, stop relaunching").calledOnce).to.be.true;
-          crawler.launch.restore();
-          crawler._relaunchTooFrequently.restore();
-          crawler._repeatWarn.restore();
-          adone();
+          async.until(function() {
+            return crawler.launch.calledThrice && crawler._relaunchTooFrequently.calledThrice && crawler._repeatWarn.withArgs("crawler relaunch too frequently, stop relaunching").calledOnce;
+          }, function(cb) {
+            setTimeout(cb, 100);
+          }, function() {
+            crawler.launch.restore();
+            crawler._relaunchTooFrequently.restore();
+            crawler._repeatWarn.restore();
+            adone();
+          });
         }
       ], function(err) {
         errcb(err);

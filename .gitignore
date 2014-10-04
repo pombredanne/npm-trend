@@ -27,3 +27,4 @@ test.log
 tmp.js
 lib/crawler/db_config.json
 lib/crawler/cl_config.json
+npm-trend.crawler.singleton
