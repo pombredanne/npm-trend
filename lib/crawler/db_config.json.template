@@ -1,5 +1,5 @@
 {
-	"_comment": "This is a template config file. After fill params, rename this file to 'db_config.json' and never check it into source",
+	"_comment": "This is a template config file. After filling params, rename this file to 'db_config.json' and never check it into source",
 
 	"_comment": "mongodb address",
 	"address": "localhost:27017",

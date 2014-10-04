@@ -1,4 +1,6 @@
 {
+	"_comment": "This is a template config file. After filling params, rename this file to 'cl_config.json' and no need to check it into source",
+
 	"_comment": "minutes for relaunch crawler next time",
 	"relaunchAfter": 5,
 
