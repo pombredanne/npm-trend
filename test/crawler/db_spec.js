@@ -18,7 +18,7 @@ var sleep = test_util.sleep;
 // TODO: write attentions for testing at README. Like manual clean work when test fails.
 describe("db", function() {
   var dbport = (50000 + parseInt(10000 * Math.random())).toString();
-  var dbdir = path.join(os.tmpdir(), "/" + dbport.toString());
+  var dbdir = "./npmtrend.test.db.tmp";
   var dblog = path.join(dbdir, "/" + Math.random().toString());
   var dbconfig = null;
   var dbcmd_noauth = sprintf("mongod --port %s --dbpath %s --logpath %s", dbport, dbdir, dblog);

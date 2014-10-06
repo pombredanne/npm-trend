@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js --debug",
-    "test": "mocha -R spec --recursive -t 10000; rm -f npm-trend.fakecl.log"
+    "test": "mocha -R spec --recursive -t 10000; node testCleanup.js"
   },
   "repository": {
     "type": "git",
@@ -19,10 +19,11 @@
   "devDependencies": {
   "mocha": "^1.20.0",
   "chai": "^1.9.1",
-  "debug": "^1.0.3",
   "sinon": "1.10.3"
   },
   "dependencies": {
+    "colors": "1.0.2",
+    "debug": "^1.0.3",
     "date-utils": "*",
     "mongodb": "1.3.19",
     "clone": "0.1.18",
