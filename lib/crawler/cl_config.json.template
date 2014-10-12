@@ -8,8 +8,5 @@
 	"maxSockets": 500,
 
 	"_comment": "seconds for timeout of http get",
-	"httpGetTimeout": 100,
-
-	"_comment": "for globalAgent.maxSockets",
-	"maxReqOnSingleSocket": 300
+	"httpGetTimeout": 100
 }
