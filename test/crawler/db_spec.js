@@ -15,7 +15,6 @@ chai.config.includeStack = true;
 var errcb = test_util.errcb;
 var sleep = test_util.sleep;
 
-// TODO: write attentions for testing at README. Like manual clean work when test fails.
 describe("db", function() {
   var dbport = (50000 + parseInt(10000 * Math.random())).toString();
   var dbdir = "./npmtrend.test.db.tmp";
@@ -210,6 +209,51 @@ describe("db", function() {
             expect(/auth: couldn't find user rusr@admin/.test(log)).to.be.false;
             adone();
           });
+        }
+      ], function(err) {
+        if (err != null && mongod != null) {
+          mongod.kill();
+        }
+        errcb(err);
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it("could disconnect", function(done) {
+      var mongod = exec(dbcmd_noauth);
+      dbconfig.npmtrendDB = "test";
+      dbconfig.needAuth = false;
+      async.series([
+        sleep(),
+        function(adone) {
+          db.connect(dbconfig);
+          adone();
+        },
+        function(adone) {
+          async.until(function() {
+            return db.ready();
+          }, function(cb) {
+            setTimeout(cb, 100);
+          }, function() {
+            db.disconnect();
+            adone();
+          });
+        },
+        function(adone) {
+          async.until(function() {
+            return !db.ready();
+          }, function(cb) {
+            setTimeout(cb, 300);
+          }, function() {
+            adone();
+          });
+        },
+        sleep(300),
+        function(adone) {
+          expect(/end connection/.test(fs.readFileSync(dblog))).to.be.true;
+          mongod.kill();
+          adone();
         }
       ], function(err) {
         if (err != null && mongod != null) {
