@@ -3,7 +3,7 @@ var expect = chai.expect;
 var path = require("path");
 var os = require("os");
 var fs = require("fs-extra");
-var db = require("../../lib/crawler/db");
+var DB = require("../../lib/public/db");
 var exec = require('child_process').exec;
 var sprintf = require("sprintf-js").sprintf;
 var async = require("async");
@@ -79,12 +79,15 @@ describe("db", function() {
       dbconfig.username = "root";
       dbconfig.passwd = "123456";
       dbconfig.authDB = dbconfig.npmtrendDB;
+
+      var db = new DB(dbconfig);
       expect(db._getConnStr(dbconfig)).to.equal("mongodb://root:123456@localhost:" + dbport + "/test");
       dbconfig.needAuth = false;
       expect(db._getConnStr(dbconfig)).to.equal("mongodb://localhost:" + dbport);
     });
 
     it("should be disconnected by default", function() {
+      var db = new DB(dbconfig);
       expect(db.ready()).to.be.false;
     })
 
@@ -92,10 +95,12 @@ describe("db", function() {
       var mongod = exec(dbcmd_noauth);
       dbconfig.npmtrendDB = "test";
       dbconfig.needAuth = false;
+
+      var db = new DB(dbconfig);
       async.series([
         sleep(),
         function(adone) {
-          db.connect(dbconfig);
+          db.connect();
           adone();
         },
         function(adone) {
@@ -135,10 +140,12 @@ describe("db", function() {
       dbconfig.npmtrendDB = "test";
       dbconfig.username = "tusr";
       dbconfig.passwd = "123456";
+
+      var db = new DB(dbconfig);
       async.series([
         sleep(),
         function(adone) {
-          db.connect(dbconfig);
+          db.connect();
           adone();
         },
         function(adone) {
@@ -179,10 +186,12 @@ describe("db", function() {
       dbconfig.npmtrendDB = "test";
       dbconfig.username = "rusr";
       dbconfig.passwd = "123456";
+
+      var db = new DB(dbconfig);
       async.series([
         sleep(),
         function(adone) {
-          db.connect(dbconfig);
+          db.connect();
           adone();
         },
         function(adone) {
@@ -224,10 +233,12 @@ describe("db", function() {
       var mongod = exec(dbcmd_noauth);
       dbconfig.npmtrendDB = "test";
       dbconfig.needAuth = false;
+
+      var db = new DB(dbconfig);
       async.series([
         sleep(),
         function(adone) {
-          db.connect(dbconfig);
+          db.connect();
           adone();
         },
         function(adone) {
@@ -274,10 +285,12 @@ describe("db", function() {
     });
 
     it("schema option must be strict", function() {
+      var db = new DB(dbconfig);
       expect(db._schemaOption.strict).to.be.true;
     });
 
     it("verify models", function() {
+      var db = new DB(dbconfig);
       expect(db).to.have.property("TotalPkg");
       expect(db).to.have.property("TotalDayDld");
       expect(db).to.have.property("TotalWeekDld");
@@ -293,10 +306,11 @@ describe("db", function() {
           num: 100
         };
 
+        var db = new DB(dbconfig);
         async.series([
           sleep(),
           function(adone) {
-            db.connect(dbconfig);
+            db.connect();
             adone();
           },
           sleep(),
@@ -350,10 +364,11 @@ describe("db", function() {
         }]
       };
 
+      var db = new DB(dbconfig);
       async.series([
         sleep(),
         function(adone) {
-          db.connect(dbconfig);
+          db.connect();
           adone();
         },
         sleep(),
