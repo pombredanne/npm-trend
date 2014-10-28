@@ -19,13 +19,13 @@ describe("Worker to get page", function() {
       res.send("single");
     });
     app.get("/error", function(req, res) {
-      res.send(404, "not found");
+      res.status(404).send("not found");
     });
     app.get("/test/1", function(req, res) {
       res.send("test1");
     });
     app.get("/test/2", function(req, res) {
-      res.send(304);
+      res.status(304).end();
     });
     app.get("/test/3", function(req, res) {
       res.send("test3");
