@@ -1,8 +1,17 @@
-#!/usr/bin/env node
+(function parseArgs() {
+  var args = require("minimist")(process.argv.slice(2), {
+    boolean: true
+  });
+
+  if (args.verbose) {
+    process.env["DEBUG"] = "*";
+  }
+})();
+
 var debug = require('debug')('www');
 var app = require('../app');
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', 3000);
 
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);

@@ -23,6 +23,15 @@ Or start without debug output
 
 	node index.js
 
+###Launch web
+With verbose log
+
+	node lib/www/bin/www --verbose
+
+Or with less log
+
+	node lib/www/bin/www
+
 ###Test
 
 	npm test
