@@ -7,11 +7,13 @@ Get the download statistics of npm modules by crawling [www.npmjs.org](https://w
 - Need mongodb installed.
 - Cannot support Win32.
 
+###DB config
+Both crawler and web use the same db config: /lib/public/db_config.json.template
+
 ###Usage of crawler
 Fill configuration for
 	
 	/lib/crawler/cl_config.json.template
-	/lib/crawler/db_config.json.template
 
 Start crawler with debug output
 

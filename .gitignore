@@ -24,7 +24,7 @@ build/Release
 # see https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
 node_modules
 tmp.js
-lib/crawler/db_config.json
+lib/public/db_config.json
 lib/crawler/cl_config.json
 npm-trend.crawler.singleton
 *.tmp
