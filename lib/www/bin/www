@@ -8,6 +8,9 @@
   }
 })();
 
+// Currenly always enable test log
+process.env["TESTLOG"] = true;
+
 var debug = require('debug')('www');
 var app = require('../app');
 
