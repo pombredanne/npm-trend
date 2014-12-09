@@ -1,0 +1,8 @@
+.black_link {
+	color: black;
+}
+
+.black_link:hover, .black_link:focus {
+	color: black;
+	text-decoration: none;
+}
