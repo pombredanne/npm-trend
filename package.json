@@ -4,7 +4,8 @@
   "description": "Get trend data of npm usage",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js --debug",
+    "crawler": "node index.js --debug",
+    "www": "node lib/www/bin/www",
     "test": "mocha -R spec --recursive -t 10000; node testCleanup.js"
   },
   "repository": {

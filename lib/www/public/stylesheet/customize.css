@@ -6,3 +6,7 @@
 	color: black;
 	text-decoration: none;
 }
+
+.nopadding {
+	padding: 0;
+}

@@ -20,9 +20,7 @@ Fill configuration for
 
 Start crawler with debug output
 
-	npm start
-	or
-	node index.js --debug
+	npm run crawler
 
 Or start without debug output
 
@@ -36,7 +34,7 @@ With verbose log
 
 Or with less log
 
-	node lib/www/bin/www
+	npm run www
 
 ###Test
 
